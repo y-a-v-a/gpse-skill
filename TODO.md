@@ -88,7 +88,7 @@
 
 ## General Tasks
 
-- [ ] Update README.md with skill installation instructions
+- [x] Update README.md with skill installation instructions
 - [ ] Add LICENSE file if needed
 - [ ] Test skill integration with Claude Code
 - [ ] Verify skill discovery and auto-activation

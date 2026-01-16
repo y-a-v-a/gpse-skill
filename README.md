@@ -1,9 +1,127 @@
-Google Programmable Search Engine Skill
+# Google Programmable Search Engine Skill
 
-This directory contains a skill for AI tools that uses Google Programmable Search Engine, formerly known as CSE or Custom Search Engine, which can be used as an alternative to the standard Web Search features of your AI tool.
+A Claude Code skill that enables web search using Google's Programmable Search Engine (formerly Custom Search Engine/CSE).
 
-The skill is written in plain JavaScript.
+## Features
 
+- Search the web using Google Custom Search API
+- Customizable search engine configuration
+- Formatted markdown output with title, link, and snippet
+- Built-in error handling and helpful error messages
+- Plain JavaScript implementation with zero external dependencies
+
+## Prerequisites
+
+- [Claude Code](https://claude.ai/code) CLI installed
+- Node.js (v18 or later, for native fetch support)
+- Google Cloud account with Custom Search API enabled
+- A Programmable Search Engine ID (cx)
+
+## Installation
+
+### 1. Clone or Download This Repository
+
+```bash
+git clone https://github.com/your-username/gpse-skill.git
+```
+
+### 2. Add the Skill to Claude Code
+
+Copy this skill directory to your Claude Code skills folder:
+
+**Option A: Global skills (available in all projects)**
+```bash
+# Create the global skills directory if it doesn't exist
+mkdir -p ~/.claude/skills
+
+# Copy the skill
+cp -r gpse-skill ~/.claude/skills/
+```
+
+**Option B: Project-local skills (available only in current project)**
+```bash
+# Create the project skills directory if it doesn't exist
+mkdir -p .claude/skills
+
+# Copy the skill
+cp -r gpse-skill .claude/skills/
+```
+
+### 3. Configure API Credentials
+
+Set the required environment variables:
+
+```bash
+export GOOGLE_API_KEY="your-api-key-here"
+export GOOGLE_CX="your-search-engine-id"
+```
+
+To make these persistent, add them to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+echo 'export GOOGLE_API_KEY="your-api-key-here"' >> ~/.bashrc
+echo 'export GOOGLE_CX="your-search-engine-id"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+For detailed instructions on obtaining credentials, see [SETUP.md](SETUP.md).
+
+## Usage
+
+### Direct Invocation
+
+Use the `/google-search` slash command:
+
+```
+/google-search machine learning papers 2026
+```
+
+### Natural Language
+
+Simply ask Claude to search:
+
+```
+Search for recent developments in quantum computing
+```
+
+### Example Output
+
+```markdown
+## Search Results for: "quantum computing"
+
+1. **Introduction to Quantum Computing**
+   https://example.com/quantum-intro
+   A comprehensive guide to quantum computing fundamentals...
+
+2. **Latest Quantum Computing Research**
+   https://example.com/quantum-research
+   Recent breakthroughs in quantum computing technology...
+```
+
+## Configuration
+
+| Environment Variable | Required | Description |
+|---------------------|----------|-------------|
+| `GOOGLE_API_KEY` | Yes | Google API key with Custom Search API enabled |
+| `GOOGLE_CX` | Yes | Programmable Search Engine ID |
+
+## Documentation
+
+- [SETUP.md](SETUP.md) - Detailed setup instructions for obtaining credentials
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues and solutions
+- [examples/usage.md](examples/usage.md) - Usage examples and patterns
+
+## Quotas and Limits
+
+The Google Custom Search API free tier allows:
+- 100 queries per day
+- 10 results per query (maximum)
+
+For higher limits, see [Google Custom Search pricing](https://developers.google.com/custom-search/v1/overview#pricing).
+
+---
+
+## API Reference
 
 ### Basic REST API Request Example
 
