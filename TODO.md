@@ -40,13 +40,13 @@
 ## Phase 2: Documentation
 
 ### examples/usage.md
-- [ ] Create examples/ directory
-- [ ] Create usage.md file
-- [ ] Add example: Basic search query
-- [ ] Add example: Direct invocation with /google-search
-- [ ] Add example: Search with specific fields
-- [ ] Add example: Handling no results
-- [ ] Add example: Error scenarios and recovery
+- [x] Create examples/ directory
+- [x] Create usage.md file
+- [x] Add example: Basic search query
+- [x] Add example: Direct invocation with /google-search
+- [x] Add example: Search with specific fields
+- [x] Add example: Handling no results
+- [x] Add example: Error scenarios and recovery
 
 ### Setup Documentation
 - [ ] Document how to obtain Google API key
