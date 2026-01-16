@@ -17,7 +17,8 @@ const {
   formatResults,
   API_ENDPOINT,
   DEFAULT_FIELDS,
-  DEFAULT_NUM_RESULTS
+  DEFAULT_NUM_RESULTS,
+  DEFAULT_START_INDEX
 } = require('../scripts/search.js');
 
 describe('sanitizeInput', () => {
@@ -84,6 +85,37 @@ describe('parseArgs', () => {
     const result = parseArgs(['  test\x00query  ']);
     assert.strictEqual(result.query, 'testquery');
   });
+
+  it('should parse --start flag', () => {
+    const result = parseArgs(['test query', '--start=11']);
+    assert.strictEqual(result.query, 'test query');
+    assert.strictEqual(result.start, 11);
+  });
+
+  it('should handle --start flag before query', () => {
+    const result = parseArgs(['--start=21', 'my query']);
+    assert.strictEqual(result.query, 'my query');
+    assert.strictEqual(result.start, 21);
+  });
+
+  it('should limit start to valid range (1-91)', () => {
+    assert.strictEqual(parseArgs(['test', '--start=0']).start, DEFAULT_START_INDEX);
+    assert.strictEqual(parseArgs(['test', '--start=92']).start, DEFAULT_START_INDEX);
+    assert.strictEqual(parseArgs(['test', '--start=-1']).start, DEFAULT_START_INDEX);
+    assert.strictEqual(parseArgs(['test', '--start=abc']).start, DEFAULT_START_INDEX);
+  });
+
+  it('should return default start when not specified', () => {
+    const result = parseArgs(['test query']);
+    assert.strictEqual(result.start, DEFAULT_START_INDEX);
+  });
+
+  it('should parse both --num and --start flags', () => {
+    const result = parseArgs(['query', '--num=5', '--start=11']);
+    assert.strictEqual(result.query, 'query');
+    assert.strictEqual(result.num, 5);
+    assert.strictEqual(result.start, 11);
+  });
 });
 
 describe('buildApiUrl', () => {
@@ -109,6 +141,22 @@ describe('buildApiUrl', () => {
   it('should use default fields parameter', () => {
     const url = buildApiUrl('test', 'key', 'cx', 10);
     assert.ok(url.includes('fields='));
+  });
+
+  it('should include start parameter when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 11);
+    assert.ok(url.includes('start=11'));
+  });
+
+  it('should use default start when not provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10);
+    assert.ok(url.includes('start=1'));
+  });
+
+  it('should include custom start index for pagination', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 21);
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('start'), '21');
   });
 });
 
@@ -222,6 +270,55 @@ describe('formatResults', () => {
     assert.ok(output.includes('**Only Title**'));
     assert.ok(output.includes('No description available'));
   });
+
+  it('should use start index for numbering when provided', () => {
+    const items = [
+      { title: 'First', link: 'https://first.com', snippet: 'First desc' },
+      { title: 'Second', link: 'https://second.com', snippet: 'Second desc' }
+    ];
+    const output = formatResults('test', items, 11);
+
+    assert.ok(output.includes('11. **First**'));
+    assert.ok(output.includes('12. **Second**'));
+  });
+
+  it('should show result range in header when start > 1', () => {
+    const items = [
+      { title: 'Result', link: 'https://example.com', snippet: 'Desc' }
+    ];
+    const output = formatResults('query', items, 11);
+
+    assert.ok(output.includes('(Results 11-11)'));
+  });
+
+  it('should show correct result range for multiple items', () => {
+    const items = [
+      { title: 'A', link: 'https://a.com', snippet: 'A' },
+      { title: 'B', link: 'https://b.com', snippet: 'B' },
+      { title: 'C', link: 'https://c.com', snippet: 'C' }
+    ];
+    const output = formatResults('query', items, 21);
+
+    assert.ok(output.includes('(Results 21-23)'));
+    assert.ok(output.includes('21. **A**'));
+    assert.ok(output.includes('22. **B**'));
+    assert.ok(output.includes('23. **C**'));
+  });
+
+  it('should not show result range when start is 1', () => {
+    const items = [{ title: 'Result', link: 'https://example.com', snippet: 'Desc' }];
+    const output = formatResults('query', items, 1);
+
+    assert.ok(!output.includes('(Results'));
+  });
+
+  it('should use default start index when not specified', () => {
+    const items = [{ title: 'Result', link: 'https://example.com', snippet: 'Desc' }];
+    const output = formatResults('query', items);
+
+    assert.ok(output.includes('1. **Result**'));
+    assert.ok(!output.includes('(Results'));
+  });
 });
 
 describe('constants', () => {
@@ -235,5 +332,9 @@ describe('constants', () => {
 
   it('should have correct default number of results', () => {
     assert.strictEqual(DEFAULT_NUM_RESULTS, 10);
+  });
+
+  it('should have correct default start index', () => {
+    assert.strictEqual(DEFAULT_START_INDEX, 1);
   });
 });

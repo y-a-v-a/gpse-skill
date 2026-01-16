@@ -75,10 +75,10 @@
 - [ ] Test cache hit/miss scenarios
 
 ### Pagination
-- [ ] Add support for startIndex parameter
-- [ ] Implement "next page" functionality
-- [ ] Add user instructions for requesting more results
-- [ ] Test pagination with multiple pages
+- [x] Add support for startIndex parameter
+- [x] Implement "next page" functionality
+- [x] Add user instructions for requesting more results
+- [x] Test pagination with multiple pages
 
 ### Advanced Parameters
 - [ ] Add dateRestrict parameter support

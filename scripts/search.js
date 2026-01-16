@@ -5,7 +5,7 @@
  *
  * Searches the web using Google Custom Search API and returns formatted results.
  *
- * Usage: node search.js "search query" [--num=N]
+ * Usage: node search.js "search query" [--num=N] [--start=N]
  *
  * Environment variables required:
  *   GOOGLE_API_KEY - Google API key with Custom Search API enabled
@@ -15,6 +15,7 @@
 const API_ENDPOINT = 'https://www.googleapis.com/customsearch/v1';
 const DEFAULT_FIELDS = 'kind,items(title,link,snippet)';
 const DEFAULT_NUM_RESULTS = 10;
+const DEFAULT_START_INDEX = 1;
 
 /**
  * Sanitizes user input to prevent injection attacks
@@ -32,11 +33,12 @@ function sanitizeInput(input) {
 /**
  * Parses command line arguments
  * @param {string[]} args - Command line arguments
- * @returns {{query: string, num: number}} Parsed arguments
+ * @returns {{query: string, num: number, start: number}} Parsed arguments
  */
 function parseArgs(args) {
   let query = '';
   let num = DEFAULT_NUM_RESULTS;
+  let start = DEFAULT_START_INDEX;
 
   for (const arg of args) {
     if (arg.startsWith('--num=')) {
@@ -44,12 +46,18 @@ function parseArgs(args) {
       if (!isNaN(value) && value >= 1 && value <= 10) {
         num = value;
       }
+    } else if (arg.startsWith('--start=')) {
+      const value = parseInt(arg.slice(8), 10);
+      // Google API allows start from 1 to 91 (max 100 results total)
+      if (!isNaN(value) && value >= 1 && value <= 91) {
+        start = value;
+      }
     } else if (!arg.startsWith('--')) {
       query = arg;
     }
   }
 
-  return { query: sanitizeInput(query), num };
+  return { query: sanitizeInput(query), num, start };
 }
 
 /**
@@ -58,14 +66,16 @@ function parseArgs(args) {
  * @param {string} apiKey - Google API key
  * @param {string} cx - Search engine ID
  * @param {number} num - Number of results
+ * @param {number} start - Starting index for results (1-based)
  * @returns {string} Complete API URL
  */
-function buildApiUrl(query, apiKey, cx, num) {
+function buildApiUrl(query, apiKey, cx, num, start = DEFAULT_START_INDEX) {
   const params = new URLSearchParams({
     key: apiKey,
     cx: cx,
     q: query,
     num: num.toString(),
+    start: start.toString(),
     fields: DEFAULT_FIELDS
   });
 
@@ -106,21 +116,26 @@ function getErrorMessage(status, errorBody) {
  * Formats search results as markdown
  * @param {string} query - Original search query
  * @param {object[]} items - Search result items
+ * @param {number} start - Starting index for numbering (1-based)
  * @returns {string} Formatted markdown output
  */
-function formatResults(query, items) {
+function formatResults(query, items, start = DEFAULT_START_INDEX) {
   if (!items || items.length === 0) {
     return `## Search Results for: "${query}"\n\nNo results found.`;
   }
 
-  let output = `## Search Results for: "${query}"\n\n`;
+  let output = `## Search Results for: "${query}"`;
+  if (start > 1) {
+    output += ` (Results ${start}-${start + items.length - 1})`;
+  }
+  output += '\n\n';
 
   items.forEach((item, index) => {
     const title = item.title || 'Untitled';
     const link = item.link || '';
     const snippet = item.snippet || 'No description available.';
 
-    output += `${index + 1}. **${title}**\n`;
+    output += `${start + index}. **${title}**\n`;
     output += `   ${link}\n`;
     output += `   ${snippet}\n\n`;
   });
@@ -134,12 +149,12 @@ function formatResults(query, items) {
 async function search() {
   // Parse command line arguments (skip node and script path)
   const args = process.argv.slice(2);
-  const { query, num } = parseArgs(args);
+  const { query, num, start } = parseArgs(args);
 
   // Validate query
   if (!query) {
     console.error('Error: No search query provided.\n');
-    console.error('Usage: node search.js "search query" [--num=N]');
+    console.error('Usage: node search.js "search query" [--num=N] [--start=N]');
     process.exit(1);
   }
 
@@ -171,7 +186,7 @@ async function search() {
   }
 
   // Build API URL
-  const url = buildApiUrl(query, apiKey, cx, num);
+  const url = buildApiUrl(query, apiKey, cx, num, start);
 
   try {
     // Execute HTTP request
@@ -194,7 +209,7 @@ async function search() {
     const data = await response.json();
 
     // Format and output results
-    const output = formatResults(query, data.items);
+    const output = formatResults(query, data.items, start);
     console.log(output);
 
   } catch (error) {
@@ -221,7 +236,8 @@ module.exports = {
   // Constants for testing
   API_ENDPOINT,
   DEFAULT_FIELDS,
-  DEFAULT_NUM_RESULTS
+  DEFAULT_NUM_RESULTS,
+  DEFAULT_START_INDEX
 };
 
 // Run the search if executed directly

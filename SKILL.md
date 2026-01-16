@@ -82,11 +82,29 @@ See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed diagnostic steps and s
 The script accepts additional optional parameters:
 
 - `--num=N` - Number of results (default: 10, max: 10 per request)
+- `--start=N` - Starting index for results, enables pagination (default: 1, max: 91)
 
 Example with parameters:
 ```bash
 node scripts/search.js "machine learning papers" --num=5
 ```
+
+### Pagination
+
+To retrieve additional results beyond the first page, use the `--start` parameter:
+
+```bash
+# First page (results 1-10)
+node scripts/search.js "quantum computing"
+
+# Second page (results 11-20)
+node scripts/search.js "quantum computing" --start=11
+
+# Third page (results 21-30)
+node scripts/search.js "quantum computing" --start=21
+```
+
+**Note:** Google Custom Search API allows a maximum of 100 results per query (start index up to 91 with 10 results).
 
 ## Examples
 
