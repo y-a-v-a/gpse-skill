@@ -30,12 +30,14 @@
 - [x] Add input sanitization for search queries
 
 ### Testing
-- [ ] Test with valid API key and cx
-- [ ] Test with missing credentials
-- [ ] Test with invalid API key
-- [ ] Test with quota exceeded scenario
-- [ ] Test response formatting
-- [ ] Test error handling paths
+- [x] Test with valid API key and cx
+- [x] Test with missing credentials
+- [x] Test with invalid API key
+- [x] Test with quota exceeded scenario
+- [x] Test response formatting
+- [x] Test error handling paths
+
+**Run tests with:** `node --test tests/search.test.js`
 
 ## Phase 2: Documentation
 

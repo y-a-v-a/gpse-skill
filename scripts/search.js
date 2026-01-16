@@ -210,5 +210,21 @@ async function search() {
   }
 }
 
-// Run the search
-search();
+// Export functions for testing
+module.exports = {
+  sanitizeInput,
+  parseArgs,
+  buildApiUrl,
+  getErrorMessage,
+  formatResults,
+  search,
+  // Constants for testing
+  API_ENDPOINT,
+  DEFAULT_FIELDS,
+  DEFAULT_NUM_RESULTS
+};
+
+// Run the search if executed directly
+if (require.main === module) {
+  search();
+}
