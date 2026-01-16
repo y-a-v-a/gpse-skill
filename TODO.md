@@ -12,22 +12,22 @@
 - [x] Include basic usage examples
 
 ### scripts/search.js
-- [ ] Create scripts/ directory
-- [ ] Initialize search.js with proper Node.js structure
-- [ ] Implement URL construction for Google Custom Search API
-- [ ] Add API key and cx parameter handling
-- [ ] Implement query parameter encoding
-- [ ] Add fields parameter for response optimization
-- [ ] Implement HTTP request execution (fetch or https module)
-- [ ] Add JSON response parsing
-- [ ] Implement error handling for API errors (400, 401, 403, 429, 500)
-- [ ] Add error messages for missing credentials
-- [ ] Add error messages for quota exceeded
-- [ ] Add error messages for network errors
-- [ ] Implement response formatting to markdown
-- [ ] Format results with title, link, and snippet
-- [ ] Limit default results to 10 items
-- [ ] Add input sanitization for search queries
+- [x] Create scripts/ directory
+- [x] Initialize search.js with proper Node.js structure
+- [x] Implement URL construction for Google Custom Search API
+- [x] Add API key and cx parameter handling
+- [x] Implement query parameter encoding
+- [x] Add fields parameter for response optimization
+- [x] Implement HTTP request execution (fetch or https module)
+- [x] Add JSON response parsing
+- [x] Implement error handling for API errors (400, 401, 403, 429, 500)
+- [x] Add error messages for missing credentials
+- [x] Add error messages for quota exceeded
+- [x] Add error messages for network errors
+- [x] Implement response formatting to markdown
+- [x] Format results with title, link, and snippet
+- [x] Limit default results to 10 items
+- [x] Add input sanitization for search queries
 
 ### Testing
 - [ ] Test with valid API key and cx
