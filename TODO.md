@@ -3,13 +3,13 @@
 ## Phase 1: Core Implementation
 
 ### SKILL.md
-- [ ] Create SKILL.md file with YAML frontmatter
-- [ ] Add skill metadata (name, description, allowed-tools, user-invocable)
-- [ ] Write basic instructions for Claude
-- [ ] Add setup instructions (API key and cx configuration)
-- [ ] Document required environment variables (GOOGLE_API_KEY, GOOGLE_CX)
-- [ ] Add reference to scripts/search.js execution
-- [ ] Include basic usage examples
+- [x] Create SKILL.md file with YAML frontmatter
+- [x] Add skill metadata (name, description, allowed-tools, user-invocable)
+- [x] Write basic instructions for Claude
+- [x] Add setup instructions (API key and cx configuration)
+- [x] Document required environment variables (GOOGLE_API_KEY, GOOGLE_CX)
+- [x] Add reference to scripts/search.js execution
+- [x] Include basic usage examples
 
 ### scripts/search.js
 - [ ] Create scripts/ directory
