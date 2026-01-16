@@ -234,6 +234,8 @@ Once setup is complete:
 2. Review [usage examples](examples/usage.md) for common patterns
 3. Use the `/google-search` command in Claude Code
 
+If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for diagnostic steps.
+
 For more information:
 - [Google Custom Search API Documentation](https://developers.google.com/custom-search/v1/overview)
 - [Programmable Search Engine Help](https://support.google.com/programmable-search/)

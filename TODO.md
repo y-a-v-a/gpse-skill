@@ -56,12 +56,12 @@
 - [x] Add alternative configuration methods
 
 ### Troubleshooting Guide
-- [ ] Add section for "Skill not triggering"
-- [ ] Add section for "API authentication errors"
-- [ ] Add section for "Quota exceeded errors"
-- [ ] Add section for "No results returned"
-- [ ] Add section for "Invalid cx parameter"
-- [ ] Add links to Google API documentation
+- [x] Add section for "Skill not triggering"
+- [x] Add section for "API authentication errors"
+- [x] Add section for "Quota exceeded errors"
+- [x] Add section for "No results returned"
+- [x] Add section for "Invalid cx parameter"
+- [x] Add links to Google API documentation
 
 ## Phase 3: Enhancement (Optional)
 

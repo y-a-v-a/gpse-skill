@@ -75,6 +75,8 @@ If you encounter errors:
 - **429 Too Many Requests**: Daily quota exceeded (free tier: 100 queries/day)
 - **Network errors**: Check internet connectivity
 
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed diagnostic steps and solutions.
+
 ## Parameters
 
 The script accepts additional optional parameters:
