@@ -11,6 +11,7 @@ const assert = require('node:assert');
 
 const {
   sanitizeInput,
+  isValidDateRestrict,
   parseArgs,
   buildApiUrl,
   getErrorMessage,
@@ -47,6 +48,38 @@ describe('sanitizeInput', () => {
   it('should preserve unicode characters', () => {
     assert.strictEqual(sanitizeInput('日本語 test'), '日本語 test');
     assert.strictEqual(sanitizeInput('café résumé'), 'café résumé');
+  });
+});
+
+describe('isValidDateRestrict', () => {
+  it('should accept valid day format', () => {
+    assert.strictEqual(isValidDateRestrict('d1'), true);
+    assert.strictEqual(isValidDateRestrict('d5'), true);
+    assert.strictEqual(isValidDateRestrict('d30'), true);
+  });
+
+  it('should accept valid week format', () => {
+    assert.strictEqual(isValidDateRestrict('w1'), true);
+    assert.strictEqual(isValidDateRestrict('w4'), true);
+  });
+
+  it('should accept valid month format', () => {
+    assert.strictEqual(isValidDateRestrict('m1'), true);
+    assert.strictEqual(isValidDateRestrict('m12'), true);
+  });
+
+  it('should accept valid year format', () => {
+    assert.strictEqual(isValidDateRestrict('y1'), true);
+    assert.strictEqual(isValidDateRestrict('y5'), true);
+  });
+
+  it('should reject invalid formats', () => {
+    assert.strictEqual(isValidDateRestrict(''), false);
+    assert.strictEqual(isValidDateRestrict('d'), false);
+    assert.strictEqual(isValidDateRestrict('1d'), false);
+    assert.strictEqual(isValidDateRestrict('x1'), false);
+    assert.strictEqual(isValidDateRestrict('day1'), false);
+    assert.strictEqual(isValidDateRestrict('1'), false);
   });
 });
 
@@ -116,6 +149,73 @@ describe('parseArgs', () => {
     assert.strictEqual(result.num, 5);
     assert.strictEqual(result.start, 11);
   });
+
+  it('should parse --date flag with valid format', () => {
+    const result = parseArgs(['test', '--date=d7']);
+    assert.strictEqual(result.dateRestrict, 'd7');
+  });
+
+  it('should ignore --date flag with invalid format', () => {
+    const result = parseArgs(['test', '--date=invalid']);
+    assert.strictEqual(result.dateRestrict, null);
+  });
+
+  it('should parse --site flag', () => {
+    const result = parseArgs(['test', '--site=github.com']);
+    assert.strictEqual(result.siteSearch, 'github.com');
+  });
+
+  it('should ignore empty --site flag', () => {
+    const result = parseArgs(['test', '--site=']);
+    assert.strictEqual(result.siteSearch, null);
+  });
+
+  it('should parse --exact flag', () => {
+    const result = parseArgs(['test', '--exact=machine learning']);
+    assert.strictEqual(result.exactTerms, 'machine learning');
+  });
+
+  it('should ignore empty --exact flag', () => {
+    const result = parseArgs(['test', '--exact=']);
+    assert.strictEqual(result.exactTerms, null);
+  });
+
+  it('should parse --exclude flag', () => {
+    const result = parseArgs(['test', '--exclude=spam ads']);
+    assert.strictEqual(result.excludeTerms, 'spam ads');
+  });
+
+  it('should ignore empty --exclude flag', () => {
+    const result = parseArgs(['test', '--exclude=']);
+    assert.strictEqual(result.excludeTerms, null);
+  });
+
+  it('should parse all advanced flags together', () => {
+    const result = parseArgs([
+      'query',
+      '--num=5',
+      '--start=11',
+      '--date=m1',
+      '--site=example.com',
+      '--exact=important',
+      '--exclude=junk'
+    ]);
+    assert.strictEqual(result.query, 'query');
+    assert.strictEqual(result.num, 5);
+    assert.strictEqual(result.start, 11);
+    assert.strictEqual(result.dateRestrict, 'm1');
+    assert.strictEqual(result.siteSearch, 'example.com');
+    assert.strictEqual(result.exactTerms, 'important');
+    assert.strictEqual(result.excludeTerms, 'junk');
+  });
+
+  it('should return null for advanced params when not specified', () => {
+    const result = parseArgs(['test query']);
+    assert.strictEqual(result.dateRestrict, null);
+    assert.strictEqual(result.siteSearch, null);
+    assert.strictEqual(result.exactTerms, null);
+    assert.strictEqual(result.excludeTerms, null);
+  });
 });
 
 describe('buildApiUrl', () => {
@@ -157,6 +257,63 @@ describe('buildApiUrl', () => {
     const url = buildApiUrl('test', 'key', 'cx', 10, 21);
     const params = new URLSearchParams(url.split('?')[1]);
     assert.strictEqual(params.get('start'), '21');
+  });
+
+  it('should include dateRestrict when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, { dateRestrict: 'd7' });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('dateRestrict'), 'd7');
+  });
+
+  it('should include siteSearch when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, { siteSearch: 'github.com' });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('siteSearch'), 'github.com');
+  });
+
+  it('should include exactTerms when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, { exactTerms: 'machine learning' });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('exactTerms'), 'machine learning');
+  });
+
+  it('should include excludeTerms when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, { excludeTerms: 'spam' });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('excludeTerms'), 'spam');
+  });
+
+  it('should include all advanced options when provided', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, {
+      dateRestrict: 'm1',
+      siteSearch: 'example.com',
+      exactTerms: 'important phrase',
+      excludeTerms: 'junk spam'
+    });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('dateRestrict'), 'm1');
+    assert.strictEqual(params.get('siteSearch'), 'example.com');
+    assert.strictEqual(params.get('exactTerms'), 'important phrase');
+    assert.strictEqual(params.get('excludeTerms'), 'junk spam');
+  });
+
+  it('should not include advanced options when null or undefined', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, {
+      dateRestrict: null,
+      siteSearch: undefined
+    });
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('dateRestrict'), null);
+    assert.strictEqual(params.get('siteSearch'), null);
+  });
+
+  it('should work with empty options object', () => {
+    const url = buildApiUrl('test', 'key', 'cx', 10, 1, {});
+    const params = new URLSearchParams(url.split('?')[1]);
+    assert.strictEqual(params.get('dateRestrict'), null);
+    assert.strictEqual(params.get('siteSearch'), null);
+    assert.strictEqual(params.get('exactTerms'), null);
+    assert.strictEqual(params.get('excludeTerms'), null);
   });
 });
 

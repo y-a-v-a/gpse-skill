@@ -237,6 +237,107 @@ node scripts/search.js "Node.js fetch API official documentation"
 
 ---
 
+## Advanced Search Filters
+
+The skill supports advanced filtering options to narrow down search results.
+
+### Date Filtering
+
+Restrict results to content from a specific time period:
+
+**User request:**
+> Find AI news from the last week
+
+**Execution:**
+```bash
+node scripts/search.js "AI news" --date=w1
+```
+
+**Date format options:**
+- `d[N]` - Last N days (e.g., `d1` = last day, `d7` = last 7 days)
+- `w[N]` - Last N weeks (e.g., `w1` = last week, `w2` = last 2 weeks)
+- `m[N]` - Last N months (e.g., `m1` = last month, `m6` = last 6 months)
+- `y[N]` - Last N years (e.g., `y1` = last year)
+
+---
+
+### Site-Specific Search
+
+Search within a specific domain:
+
+**User request:**
+> Search for React hooks on GitHub
+
+**Execution:**
+```bash
+node scripts/search.js "React hooks" --site=github.com
+```
+
+**Other site examples:**
+```bash
+# Stack Overflow only
+node scripts/search.js "Python error handling" --site=stackoverflow.com
+
+# Wikipedia only
+node scripts/search.js "quantum computing" --site=wikipedia.org
+
+# MDN Web Docs only
+node scripts/search.js "JavaScript array methods" --site=developer.mozilla.org
+```
+
+---
+
+### Exact Phrase Matching
+
+Require an exact phrase to appear in results:
+
+**User request:**
+> Find articles about "machine learning" that mention "best practices"
+
+**Execution:**
+```bash
+node scripts/search.js "machine learning" --exact=best practices
+```
+
+---
+
+### Excluding Terms
+
+Remove results containing certain terms:
+
+**User request:**
+> Find JavaScript tutorials but not for beginners
+
+**Execution:**
+```bash
+node scripts/search.js "JavaScript tutorial" --exclude=beginner
+
+# Multiple exclusions can be space-separated
+node scripts/search.js "web framework" --exclude=React Angular
+```
+
+---
+
+### Combining Filters
+
+Multiple filters can be combined for precise results:
+
+**User request:**
+> Find recent Python machine learning papers on arxiv, limited to 5 results
+
+**Execution:**
+```bash
+node scripts/search.js "Python machine learning" --date=m3 --site=arxiv.org --num=5
+```
+
+**Complex search example:**
+```bash
+# Find TypeScript tutorials from Stack Overflow in the last month, excluding React
+node scripts/search.js "TypeScript tutorial" --site=stackoverflow.com --date=m1 --exclude=React --num=5
+```
+
+---
+
 ## Response Formatting
 
 The skill formats results in a consistent markdown format:

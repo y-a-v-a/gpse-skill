@@ -81,12 +81,39 @@ See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed diagnostic steps and s
 
 The script accepts additional optional parameters:
 
+### Basic Parameters
 - `--num=N` - Number of results (default: 10, max: 10 per request)
 - `--start=N` - Starting index for results, enables pagination (default: 1, max: 91)
 
-Example with parameters:
+### Advanced Search Filters
+- `--date=PERIOD` - Restrict results by date. Format: `d[N]` (days), `w[N]` (weeks), `m[N]` (months), `y[N]` (years)
+  - Examples: `d1` (last day), `w1` (last week), `m3` (last 3 months), `y1` (last year)
+- `--site=DOMAIN` - Restrict results to a specific domain
+  - Example: `github.com`, `stackoverflow.com`
+- `--exact=PHRASE` - Require this exact phrase to appear in results
+- `--exclude=TERMS` - Exclude results containing these terms
+
+Example with basic parameters:
 ```bash
 node scripts/search.js "machine learning papers" --num=5
+```
+
+Example with advanced filters:
+```bash
+# Search within the last week
+node scripts/search.js "JavaScript tutorials" --date=w1
+
+# Search only GitHub
+node scripts/search.js "react hooks" --site=github.com
+
+# Require exact phrase
+node scripts/search.js "programming" --exact=best practices
+
+# Exclude certain terms
+node scripts/search.js "Python tutorial" --exclude=beginner
+
+# Combine multiple filters
+node scripts/search.js "machine learning" --date=m3 --site=arxiv.org --num=5
 ```
 
 ### Pagination
@@ -118,4 +145,28 @@ node scripts/search.js "recent developments quantum computing 2026"
 User: "/google-search machine learning papers"
 ```bash
 node scripts/search.js "machine learning papers"
+```
+
+### Search Recent Content
+User: "Find news about AI from the last week"
+```bash
+node scripts/search.js "AI news" --date=w1
+```
+
+### Site-Specific Search
+User: "Search for Python tutorials on Stack Overflow"
+```bash
+node scripts/search.js "Python tutorial" --site=stackoverflow.com
+```
+
+### Exclude Unwanted Results
+User: "Find JavaScript frameworks but not React"
+```bash
+node scripts/search.js "JavaScript framework" --exclude=React
+```
+
+### Combined Filters
+User: "Find recent machine learning papers on arxiv"
+```bash
+node scripts/search.js "machine learning" --date=m1 --site=arxiv.org --num=5
 ```

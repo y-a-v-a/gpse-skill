@@ -81,12 +81,12 @@
 - [x] Test pagination with multiple pages
 
 ### Advanced Parameters
-- [ ] Add dateRestrict parameter support
-- [ ] Add siteSearch parameter support
-- [ ] Add exactTerms parameter support
-- [ ] Add excludeTerms parameter support
-- [ ] Document advanced parameters in SKILL.md
-- [ ] Add examples for advanced usage
+- [x] Add dateRestrict parameter support
+- [x] Add siteSearch parameter support
+- [x] Add exactTerms parameter support
+- [x] Add excludeTerms parameter support
+- [x] Document advanced parameters in SKILL.md
+- [x] Add examples for advanced usage
 
 ## General Tasks
 

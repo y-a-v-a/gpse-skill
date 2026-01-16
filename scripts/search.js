@@ -5,7 +5,7 @@
  *
  * Searches the web using Google Custom Search API and returns formatted results.
  *
- * Usage: node search.js "search query" [--num=N] [--start=N]
+ * Usage: node search.js "search query" [--num=N] [--start=N] [--date=PERIOD] [--site=DOMAIN] [--exact=PHRASE] [--exclude=TERMS]
  *
  * Environment variables required:
  *   GOOGLE_API_KEY - Google API key with Custom Search API enabled
@@ -31,14 +31,27 @@ function sanitizeInput(input) {
 }
 
 /**
+ * Validates dateRestrict format (e.g., d1, d5, w1, m3, y1)
+ * @param {string} value - dateRestrict value to validate
+ * @returns {boolean} True if valid format
+ */
+function isValidDateRestrict(value) {
+  return /^[dwmy]\d+$/.test(value);
+}
+
+/**
  * Parses command line arguments
  * @param {string[]} args - Command line arguments
- * @returns {{query: string, num: number, start: number}} Parsed arguments
+ * @returns {{query: string, num: number, start: number, dateRestrict: string|null, siteSearch: string|null, exactTerms: string|null, excludeTerms: string|null}} Parsed arguments
  */
 function parseArgs(args) {
   let query = '';
   let num = DEFAULT_NUM_RESULTS;
   let start = DEFAULT_START_INDEX;
+  let dateRestrict = null;
+  let siteSearch = null;
+  let exactTerms = null;
+  let excludeTerms = null;
 
   for (const arg of args) {
     if (arg.startsWith('--num=')) {
@@ -52,12 +65,32 @@ function parseArgs(args) {
       if (!isNaN(value) && value >= 1 && value <= 91) {
         start = value;
       }
+    } else if (arg.startsWith('--date=')) {
+      const value = arg.slice(7);
+      if (isValidDateRestrict(value)) {
+        dateRestrict = value;
+      }
+    } else if (arg.startsWith('--site=')) {
+      const value = arg.slice(7).trim();
+      if (value) {
+        siteSearch = value;
+      }
+    } else if (arg.startsWith('--exact=')) {
+      const value = arg.slice(8).trim();
+      if (value) {
+        exactTerms = value;
+      }
+    } else if (arg.startsWith('--exclude=')) {
+      const value = arg.slice(10).trim();
+      if (value) {
+        excludeTerms = value;
+      }
     } else if (!arg.startsWith('--')) {
       query = arg;
     }
   }
 
-  return { query: sanitizeInput(query), num, start };
+  return { query: sanitizeInput(query), num, start, dateRestrict, siteSearch, exactTerms, excludeTerms };
 }
 
 /**
@@ -67,9 +100,14 @@ function parseArgs(args) {
  * @param {string} cx - Search engine ID
  * @param {number} num - Number of results
  * @param {number} start - Starting index for results (1-based)
+ * @param {object} options - Optional advanced parameters
+ * @param {string|null} options.dateRestrict - Restrict results by date (e.g., d1, w1, m1, y1)
+ * @param {string|null} options.siteSearch - Restrict results to a specific site
+ * @param {string|null} options.exactTerms - Include exact phrase in results
+ * @param {string|null} options.excludeTerms - Exclude terms from results
  * @returns {string} Complete API URL
  */
-function buildApiUrl(query, apiKey, cx, num, start = DEFAULT_START_INDEX) {
+function buildApiUrl(query, apiKey, cx, num, start = DEFAULT_START_INDEX, options = {}) {
   const params = new URLSearchParams({
     key: apiKey,
     cx: cx,
@@ -78,6 +116,20 @@ function buildApiUrl(query, apiKey, cx, num, start = DEFAULT_START_INDEX) {
     start: start.toString(),
     fields: DEFAULT_FIELDS
   });
+
+  // Add optional advanced parameters
+  if (options.dateRestrict) {
+    params.set('dateRestrict', options.dateRestrict);
+  }
+  if (options.siteSearch) {
+    params.set('siteSearch', options.siteSearch);
+  }
+  if (options.exactTerms) {
+    params.set('exactTerms', options.exactTerms);
+  }
+  if (options.excludeTerms) {
+    params.set('excludeTerms', options.excludeTerms);
+  }
 
   return `${API_ENDPOINT}?${params.toString()}`;
 }
@@ -149,12 +201,19 @@ function formatResults(query, items, start = DEFAULT_START_INDEX) {
 async function search() {
   // Parse command line arguments (skip node and script path)
   const args = process.argv.slice(2);
-  const { query, num, start } = parseArgs(args);
+  const { query, num, start, dateRestrict, siteSearch, exactTerms, excludeTerms } = parseArgs(args);
 
   // Validate query
   if (!query) {
     console.error('Error: No search query provided.\n');
-    console.error('Usage: node search.js "search query" [--num=N] [--start=N]');
+    console.error('Usage: node search.js "search query" [options]');
+    console.error('\nOptions:');
+    console.error('  --num=N         Number of results (1-10, default: 10)');
+    console.error('  --start=N       Starting index for pagination (1-91, default: 1)');
+    console.error('  --date=PERIOD   Restrict by date (d1=day, w1=week, m1=month, y1=year)');
+    console.error('  --site=DOMAIN   Restrict to specific site (e.g., github.com)');
+    console.error('  --exact=PHRASE  Require exact phrase in results');
+    console.error('  --exclude=TERMS Exclude terms from results');
     process.exit(1);
   }
 
@@ -186,7 +245,12 @@ async function search() {
   }
 
   // Build API URL
-  const url = buildApiUrl(query, apiKey, cx, num, start);
+  const url = buildApiUrl(query, apiKey, cx, num, start, {
+    dateRestrict,
+    siteSearch,
+    exactTerms,
+    excludeTerms
+  });
 
   try {
     // Execute HTTP request
@@ -228,6 +292,7 @@ async function search() {
 // Export functions for testing
 module.exports = {
   sanitizeInput,
+  isValidDateRestrict,
   parseArgs,
   buildApiUrl,
   getErrorMessage,
