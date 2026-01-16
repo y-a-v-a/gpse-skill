@@ -49,11 +49,11 @@
 - [x] Add example: Error scenarios and recovery
 
 ### Setup Documentation
-- [ ] Document how to obtain Google API key
-- [ ] Document how to create Programmable Search Engine
-- [ ] Document how to get cx (Search Engine ID)
-- [ ] Add environment variable setup instructions
-- [ ] Add alternative configuration methods
+- [x] Document how to obtain Google API key
+- [x] Document how to create Programmable Search Engine
+- [x] Document how to get cx (Search Engine ID)
+- [x] Add environment variable setup instructions
+- [x] Add alternative configuration methods
 
 ### Troubleshooting Guide
 - [ ] Add section for "Skill not triggering"

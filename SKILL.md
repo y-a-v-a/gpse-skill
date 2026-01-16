@@ -19,6 +19,13 @@ Before using this skill, ensure the following environment variables are set:
 
 ### How to Obtain Credentials
 
+See [SETUP.md](SETUP.md) for detailed step-by-step instructions on:
+- Creating a Google Cloud project and enabling the Custom Search API
+- Generating an API key
+- Creating a Programmable Search Engine and obtaining the cx ID
+- Configuring environment variables
+
+**Quick summary:**
 1. **API Key**: Go to [Google Cloud Console](https://console.cloud.google.com/), create a project, enable the "Custom Search API", and generate an API key.
 2. **Search Engine ID (cx)**: Go to [Programmable Search Engine](https://programmablesearchengine.google.com/), create a search engine, and copy the Search Engine ID from the control panel.
 
