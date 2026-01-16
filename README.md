@@ -192,4 +192,3 @@ GET
   - **code** (integer) - The error code.
   - **message** (string) - A description of the error. Example: "Invalid field selection specified."
 
-```
