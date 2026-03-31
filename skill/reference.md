@@ -106,4 +106,4 @@ The search returns results formatted as markdown:
 | 403 Forbidden | API key lacks permission or invalid cx |
 | 429 Too Many Requests | Daily quota exceeded (free tier: 100/day) |
 
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.
+See [README.md](../README.md#troubleshooting) for detailed solutions.

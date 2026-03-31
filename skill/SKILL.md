@@ -16,8 +16,6 @@ Requires environment variables:
 - `GOOGLE_API_KEY` - Google API key with Custom Search API enabled
 - `GOOGLE_CX` - Programmable Search Engine ID
 
-See [SETUP.md](SETUP.md) for credential setup instructions.
-
 ## Usage
 
 Execute searches with:
@@ -43,8 +41,6 @@ See [reference.md](reference.md) for full parameter documentation and examples.
 - **401/403 errors**: Invalid API key or cx
 - **429 errors**: Daily quota exceeded (free tier: 100 queries/day)
 
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.
-
 ## Missing Credentials Handling
 
 If a search fails due to missing GOOGLE_API_KEY or GOOGLE_CX environment variables:
@@ -54,6 +50,5 @@ If a search fails due to missing GOOGLE_API_KEY or GOOGLE_CX environment variabl
    - Options: "Yes, show setup instructions" / "No, I'll set them up later"
 
 2. If user selects setup help:
-   - Read and summarize the key steps from [SETUP.md](SETUP.md)
    - Guide them through obtaining API key and Search Engine ID
    - Remind them to restart Claude Code after setting environment variables

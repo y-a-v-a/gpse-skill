@@ -6,9 +6,10 @@ A Claude Code skill that enables web search using Google's Programmable Search E
 
 - Search the web using Google Custom Search API
 - Customizable search engine configuration
+- Advanced filters: date, site, exact phrase, exclusions
+- Pagination support for browsing results
 - Formatted markdown output with title, link, and snippet
-- Built-in error handling and helpful error messages
-- Plain JavaScript implementation with zero external dependencies
+- Plain JavaScript with zero external dependencies
 
 ## Prerequisites
 
@@ -22,55 +23,131 @@ A Claude Code skill that enables web search using Google's Programmable Search E
 ### 1. Clone or Download This Repository
 
 ```bash
-git clone https://github.com/your-username/gpse-skill.git
+git clone https://github.com/nicovba/gpse-skill.git
 ```
 
 ### 2. Add the Skill to Claude Code
 
-Copy this skill directory to your Claude Code skills folder:
-
 **Option A: Global skills (available in all projects)**
 ```bash
-# Create the global skills directory if it doesn't exist
 mkdir -p ~/.claude/skills
-
-# Copy the skill
 cp -r gpse-skill ~/.claude/skills/
 ```
 
 **Option B: Project-local skills (available only in current project)**
 ```bash
-# Create the project skills directory if it doesn't exist
 mkdir -p .claude/skills
-
-# Copy the skill
 cp -r gpse-skill .claude/skills/
 ```
 
-### 3. Configure API Credentials
+---
 
-Set the required environment variables:
+## Setup
+
+### Step 1: Create a Google Cloud Project
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Sign in with your Google account
+3. Click the project dropdown at the top of the page
+4. Click **New Project**
+5. Enter a project name (e.g., "Claude Search Skill")
+6. Click **Create** and select the new project
+
+### Step 2: Enable the Custom Search API
+
+1. Go to **APIs & Services** > **Library**
+2. Search for "Custom Search API"
+3. Click on **Custom Search API** and click **Enable**
+
+### Step 3: Create an API Key
+
+1. Go to **APIs & Services** > **Credentials**
+2. Click **+ CREATE CREDENTIALS** > **API key**
+3. Copy the key immediately
+4. (Recommended) Click **Edit API key**, select **Restrict key**, check only **Custom Search API**, and save
+
+**Important:** Keep your API key secure. Do not commit it to version control.
+
+### Step 4: Create a Programmable Search Engine
+
+1. Go to [Programmable Search Engine](https://programmablesearchengine.google.com/)
+2. Click **Get started** or **Add**
+3. Choose one:
+   - **Search the entire web** — for general searches
+   - **Search specific sites** — for targeted searches (e.g., `stackoverflow.com`, `github.com`)
+4. Name your engine and click **Create**
+
+### Step 5: Get Your Search Engine ID (cx)
+
+1. After creating the engine, click **Customize** or go to the control panel
+2. In the **Overview** section, find and copy the **Search engine ID**
+   (looks like: `017576662512468239146:omuauf_lfve`)
+
+### Step 6: Configure Environment Variables
 
 ```bash
 export GOOGLE_API_KEY="your-api-key-here"
-export GOOGLE_CX="your-search-engine-id"
+export GOOGLE_CX="your-search-engine-id-here"
 ```
 
-To make these persistent, add them to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+To make these persistent, add them to your shell profile:
 
+**Bash (~/.bashrc):**
 ```bash
 echo 'export GOOGLE_API_KEY="your-api-key-here"' >> ~/.bashrc
-echo 'export GOOGLE_CX="your-search-engine-id"' >> ~/.bashrc
+echo 'export GOOGLE_CX="your-search-engine-id-here"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-For detailed instructions on obtaining credentials, see [SETUP.md](SETUP.md).
+**Zsh (~/.zshrc):**
+```bash
+echo 'export GOOGLE_API_KEY="your-api-key-here"' >> ~/.zshrc
+echo 'export GOOGLE_CX="your-search-engine-id-here"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Fish (~/.config/fish/config.fish):**
+```fish
+set -Ux GOOGLE_API_KEY "your-api-key-here"
+set -Ux GOOGLE_CX "your-search-engine-id-here"
+```
+
+### Alternative Configuration Methods
+
+**Using a .env file** (add `.env` to `.gitignore`):
+```bash
+GOOGLE_API_KEY=your-api-key-here
+GOOGLE_CX=your-search-engine-id-here
+```
+
+**Using [direnv](https://direnv.net/):**
+```bash
+# .envrc
+export GOOGLE_API_KEY="your-api-key-here"
+export GOOGLE_CX="your-search-engine-id-here"
+```
+Then run `direnv allow`.
+
+### Verify Your Setup
+
+```bash
+echo $GOOGLE_API_KEY
+echo $GOOGLE_CX
+node scripts/search.js "test query"
+```
+
+### Security Best Practices
+
+1. **Never commit API keys** — add `.env` to `.gitignore`
+2. **Restrict your API key** — limit it to only the Custom Search API
+3. **Monitor usage** — check the Google Cloud Console for unexpected activity
+4. **Rotate keys periodically** — delete and recreate if compromised
+
+---
 
 ## Usage
 
 ### Direct Invocation
-
-Use the `/google-search` slash command:
 
 ```
 /google-search machine learning papers 2026
@@ -79,24 +156,84 @@ Use the `/google-search` slash command:
 ### Natural Language
 
 Simply ask Claude to search:
-
 ```
 Search for recent developments in quantum computing
 ```
 
-### Example Output
+### Limiting Results
+
+```bash
+node scripts/search.js "Python tutorials" --num=5
+```
+
+### Date Filtering
+
+Restrict results by time period:
+
+```bash
+node scripts/search.js "AI news" --date=w1
+```
+
+Date formats: `d[N]` (days), `w[N]` (weeks), `m[N]` (months), `y[N]` (years).
+
+### Site-Specific Search
+
+```bash
+node scripts/search.js "React hooks" --site=github.com
+node scripts/search.js "Python error handling" --site=stackoverflow.com
+```
+
+### Exact Phrase Matching
+
+```bash
+node scripts/search.js "machine learning" --exact=best practices
+```
+
+### Excluding Terms
+
+```bash
+node scripts/search.js "JavaScript tutorial" --exclude=beginner
+```
+
+### Combining Filters
+
+```bash
+node scripts/search.js "Python machine learning" --date=m3 --site=arxiv.org --num=5
+```
+
+### Pagination
+
+```bash
+# First page (results 1-10)
+node scripts/search.js "quantum computing"
+
+# Second page (results 11-20)
+node scripts/search.js "quantum computing" --start=11
+```
+
+Google Custom Search allows up to 100 results per query (start index up to 91 with 10 results).
+
+### Tips for Best Results
+
+- **Be specific** — more specific queries yield more relevant results
+- **Include year** — add the year to find recent content
+- **Limit results** — use `--num=3` or `--num=5` for quick overviews
+
+### Response Format
 
 ```markdown
-## Search Results for: "quantum computing"
+## Search Results for: "query"
 
-1. **Introduction to Quantum Computing**
-   https://example.com/quantum-intro
-   A comprehensive guide to quantum computing fundamentals...
+1. **Result Title**
+   https://example.com/page
+   Description snippet from the page...
 
-2. **Latest Quantum Computing Research**
-   https://example.com/quantum-research
-   Recent breakthroughs in quantum computing technology...
+2. **Another Result**
+   https://example.com/other
+   Another description...
 ```
+
+---
 
 ## Configuration
 
@@ -105,90 +242,103 @@ Search for recent developments in quantum computing
 | `GOOGLE_API_KEY` | Yes | Google API key with Custom Search API enabled |
 | `GOOGLE_CX` | Yes | Programmable Search Engine ID |
 
-## Documentation
-
-- [SETUP.md](SETUP.md) - Detailed setup instructions for obtaining credentials
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues and solutions
-- [examples/usage.md](examples/usage.md) - Usage examples and patterns
+---
 
 ## Quotas and Limits
 
-The Google Custom Search API free tier allows:
-- 100 queries per day
-- 10 results per query (maximum)
+| Tier | Daily Limit | Cost |
+|------|-------------|------|
+| Free | 100 queries | $0 |
+| Paid | 10,000 queries | $5 per 1,000 queries |
 
-For higher limits, see [Google Custom Search pricing](https://developers.google.com/custom-search/v1/overview#pricing).
+Quota resets at midnight Pacific Time. To check usage: **Google Cloud Console** > **APIs & Services** > **Dashboard** > **Custom Search API** > **Metrics**.
+
+For details, see [Google Custom Search pricing](https://developers.google.com/custom-search/v1/overview#pricing).
+
+---
+
+## Troubleshooting
+
+### Quick Diagnostic Checklist
+
+```bash
+echo "API Key: ${GOOGLE_API_KEY:0:10}..."   # Shows first 10 chars
+echo "CX: $GOOGLE_CX"
+ls -la scripts/search.js
+node --version
+node scripts/search.js "test"
+```
+
+### Error Reference
+
+| Error | Likely Cause | Fix |
+|-------|--------------|-----|
+| `GOOGLE_API_KEY not set` | Missing env var | `export GOOGLE_API_KEY="..."` |
+| `GOOGLE_CX not set` | Missing env var | `export GOOGLE_CX="..."` |
+| `401 Unauthorized` | Invalid API key | Verify key in [Cloud Console](https://console.cloud.google.com/apis/credentials) |
+| `403 Forbidden` | API not enabled or key restricted | Enable Custom Search API; check key restrictions |
+| `403 quota exceeded` | Daily limit reached | Wait for midnight PT reset or enable billing |
+| `429 Too Many Requests` | Rate limited | Wait and retry |
+| `No results found` | Query too specific or typos | Try different/broader search terms |
+| `Network error` | No connectivity | Check internet; verify `googleapis.com` is reachable |
+
+### Skill Not Triggering
+
+- Verify `SKILL.md` and `scripts/search.js` exist in the project
+- Check YAML frontmatter in `SKILL.md` for syntax errors
+- Restart Claude Code to trigger skill discovery
+- Use `/google-search query` (not `google-search query`)
+
+### Common Quick Fixes
+
+1. Restart your terminal to reload environment variables
+2. Re-source your shell config: `source ~/.bashrc` or `source ~/.zshrc`
+3. Re-copy credentials without extra whitespace
+4. Ensure the correct Google Cloud project is selected
+
+### Getting Help
+
+- [Custom Search API Overview](https://developers.google.com/custom-search/v1/overview)
+- [Custom Search API Reference](https://developers.google.com/custom-search/v1/reference/rest/v1/cse/list)
+- [Programmable Search Engine Help](https://support.google.com/programmable-search/)
+- [API Credentials](https://console.cloud.google.com/apis/credentials)
 
 ---
 
 ## API Reference
 
-### Basic REST API Request Example
-
-Source: https://developers.google.com/custom-search/v1/using_rest
-
-An example of a GET request to the Custom Search JSON API. This demonstrates the required parameters: API key, Programmable Search Engine ID (cx), and the search query (q).
+### Basic REST API Request
 
 ```http
-GET https://www.googleapis.com/customsearch/v1?key=INSERT_YOUR_API_KEY&cx=017576662512468239146:omuauf_lfve&q=lectures
+GET https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_CX&q=lectures
 ```
 
-### GET /customsearch/v1
+### Field Selection for Efficiency
 
-Source: https://developers.google.com/custom-search/v1/performance
+Use the `fields` parameter to limit response size:
 
-This example demonstrates how to use the `fields` parameter to retrieve specific fields from the Custom Search API response.
-
-```APIDOC
-## GET /customsearch/v1
-
-### Description
-This endpoint allows you to search for content using the Google Custom Search engine. The `fields` query parameter can be used to limit the response to a subset of fields, improving efficiency.
-
-### Method
-GET
-
-### Endpoint
-/customsearch/v1
-
-### Parameters
-#### Query Parameters
-- **fields** (string) - Required - Specifies a subset of fields to return in the response. Fields are comma-separated and can include nested fields using '/' and wildcards using '*'. Sub-selections can be made using `( )`.
-- **q** (string) - Required - The query string to search for.
-
-### Request Example
-```json
-{
-  "example": "https://www.googleapis.com/customsearch/v1?q=google&fields=kind,items(title,link)"
-}
+```
+https://www.googleapis.com/customsearch/v1?q=google&fields=kind,items(title,link,snippet)
 ```
 
-### Response
-#### Success Response (200)
-- **kind** (string) - The type of the resource. This is always customsearch#search.
-- **items** (array) - The search results.
-  - **title** (string) - The title of the search result.
-  - **link** (string) - The URL of the search result.
-
-#### Response Example
+Response:
 ```json
 {
   "kind": "customsearch#search",
   "items": [
     {
       "title": "Google",
-      "link": "https://www.google.com/"
-    },
-    {
-      "title": "Google",
-      "link": "https://www.google.com/search?q=google"
+      "link": "https://www.google.com/",
+      "snippet": "Search the world's information..."
     }
   ]
 }
 ```
 
-#### Error Response (400)
-- **error** (object) - Contains error details.
-  - **code** (integer) - The error code.
-  - **message** (string) - A description of the error. Example: "Invalid field selection specified."
+See [reference.md](skill/reference.md) for full parameter documentation.
 
+---
+
+## Support
+
+[Buy Vincent Bruijn a coffee](https://buymeacoffee.com/y4v4)

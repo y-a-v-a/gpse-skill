@@ -20,7 +20,7 @@ const {
   DEFAULT_FIELDS,
   DEFAULT_NUM_RESULTS,
   DEFAULT_START_INDEX
-} = require('../scripts/search.js');
+} = require('../skill/scripts/search.js');
 
 describe('sanitizeInput', () => {
   it('should return empty string for non-string input', () => {
